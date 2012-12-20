@@ -167,4 +167,9 @@ public class JNCException extends Exception {
             return "Internal error: " + errorCode;
         }
     }
+    
+    @Override
+    public String getMessage() {
+    	return this.toString();
+    }
 }
