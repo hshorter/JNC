@@ -562,13 +562,22 @@ def capitalize_first(string):
     return string[:1].capitalize() + string[1:]
 
 
+def decapitalize_first(string):
+    """Returns string with its first character decapitalized (if any)"""
+    return string[:1].lower() + string[1:]
+
+
 def camelize(string):
-    """Removes hyphens and dots and replaces following character (if any) with
-    its upper-case counterpart. Does not remove a trailing hyphen or dot.
+    """Converts string to lower camel case
+
+    Removes hyphens and dots and replaces following character (if any) with
+    its upper-case counterpart. Does not remove consecutive or trailing hyphens
+    or dots.
 
     If the resulting string is reserved in Java, an underline is appended
 
-    Returns an empty string if string argument is None.
+    Returns an empty string if string argument is None. Otherwise, returns
+    string decapitalized and with no consecutive upper case letters.
 
     """
     try:  # Fetch from cache
@@ -577,11 +586,17 @@ def camelize(string):
         pass
     camelized_str = collections.deque()
     if string is not None:
-        iterator = pairwise(string)
+        iterator = pairwise(decapitalize_first(string))
         for character, next_character in iterator:
-            if next_character and character in '-.':
+            if next_character is None:
+                camelized_str.append(character.lower())
+            elif character in '-.':
                 camelized_str.append(capitalize_first(next_character))
                 next(iterator)
+            elif (character.isupper()
+                  and (next_character.isupper()
+                       or not next_character.isalpha())):
+                camelized_str.append(character.lower())
             else:
                 camelized_str.append(character)
     res = ''.join(camelized_str)
